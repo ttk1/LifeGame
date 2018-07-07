@@ -1,4 +1,4 @@
-package net.ttk1.spigotplugintemplate;
+package net.ttk1.lifegame;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
