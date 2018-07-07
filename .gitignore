@@ -1,0 +1,7 @@
+/target/
+.idea/*
+*.iml
+*.MF
+doc/*
+*.sql
+*.db
