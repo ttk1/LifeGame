@@ -49,7 +49,7 @@ public class FieldService {
             if (field.isFieldBlock(block)) {
                 field.flip(block);
             } else {
-                server.getPlayer(UUID.fromString(playerUuid)).sendMessage("You've already have LifeGame Field!");
+                player.sendMessage("You've already have LifeGame Field!");
             }
         } else if (isFirstBlockSelected(playerUuid)) {
             Block firstBlock = firstBlocks.get(playerUuid).firstBlock;
@@ -57,7 +57,7 @@ public class FieldService {
                 Field field = new Field(playerUuid, firstBlock, block);
                 fields.put(playerUuid, field);
             } else {
-                server.getPlayer(UUID.fromString(playerUuid)).sendMessage("World is different!");
+                player.sendMessage("World is different!");
             }
             firstBlocks.remove(playerUuid);
         } else {
