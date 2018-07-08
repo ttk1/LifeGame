@@ -3,7 +3,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.ttk1</groupId>
   <artifactId>LifeGame</artifactId>
-  <name>${artifactId}</name>
   <version>0.0.0-SNAPSHOT</version>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -98,9 +97,15 @@
   </dependencies>
   <properties>
     <java.version>1.8</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <plguin.author>ttk1</plguin.author>
+    <plugin.main>net.ttk1.lifegame.LifeGame</plugin.main>
+    <plugin.database>false</plugin.database>
+    <plugin.description>LifeGame in Minecraft</plugin.description>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <plugin.website>http://ttk1.net</plugin.website>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <plugin.name>${artifactId}</plugin.name>
   </properties>
 </project>
 

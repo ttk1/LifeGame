@@ -83,7 +83,8 @@ public class LifeGame extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         if (sender instanceof Player) {
-            if (command.getName().equalsIgnoreCase("lg")) {
+            if (command.getName().equalsIgnoreCase("lg") ||
+                command.getName().equalsIgnoreCase("lifegame")) {
                 if (args.length > 0) {
                     switch (args[0]) {
                         case "delete":

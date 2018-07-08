@@ -2,6 +2,7 @@ package net.ttk1.lifegame.core;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -30,10 +31,8 @@ public class FieldService {
     }
 
     public void selectBlock(Player player, Block block) {
-        selectBlock(player.getUniqueId().toString(), block);
-    }
+        String playerUuid = player.getUniqueId().toString();
 
-    public void selectBlock(String playerUuid, Block block) {
         if (fields.containsKey(playerUuid) && fields.get(playerUuid) != null) {
             server.getPlayer(UUID.fromString(playerUuid)).sendMessage("You've already have LifeGame Field!");
         } else if (isFirstBlockSelected(playerUuid)) {
@@ -48,6 +47,8 @@ public class FieldService {
         } else {
             FirstBlock firstBlock = new FirstBlock(block);
             firstBlocks.put(playerUuid, firstBlock);
+            BlockChangeSender blockChangeSender = new BlockChangeSender(player, block);
+            blockChangeSender.start();
         }
     }
 
@@ -74,5 +75,29 @@ public class FieldService {
     }
     public void deleteField(String playerUuid) {
         fields.remove(playerUuid);
+    }
+
+    /**
+     * 変化が上書きされるのを防止するため別スレッドで実行する
+     */
+    private class BlockChangeSender extends Thread {
+        private Player player;
+        private Block block;
+
+        BlockChangeSender(Player player, Block block) {
+            this.player = player;
+            this.block = block;
+        }
+
+        @Override
+        public void run() {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            player.sendBlockChange(block.getLocation(), Material.DIAMOND_BLOCK, (byte) 0x00);
+        }
+
     }
 }
