@@ -43,7 +43,14 @@ public class FieldService {
         String playerUuid = player.getUniqueId().toString();
 
         if (fields.containsKey(playerUuid) && fields.get(playerUuid) != null) {
-            server.getPlayer(UUID.fromString(playerUuid)).sendMessage("You've already have LifeGame Field!");
+            // TODO: この辺を改善する
+            // クリックした位置がフィールドの範囲内であれば、セルの生死を反転させる
+            Field field = fields.get(playerUuid);
+            if (field.isFieldBlock(block)) {
+                field.flip(block);
+            } else {
+                server.getPlayer(UUID.fromString(playerUuid)).sendMessage("You've already have LifeGame Field!");
+            }
         } else if (isFirstBlockSelected(playerUuid)) {
             Block firstBlock = firstBlocks.get(playerUuid).firstBlock;
             if (firstBlock.getWorld().getName().equals(block.getWorld().getName())) {
@@ -113,7 +120,7 @@ public class FieldService {
 
         @Override
         public void run() {
-            player.sendBlockChange(block.getLocation(), Material.DIAMOND_BLOCK, (byte) 0x00);
+            player.sendBlockChange(block.getLocation(), Material.GOLD_BLOCK, (byte) 0x00);
         }
 
     }
