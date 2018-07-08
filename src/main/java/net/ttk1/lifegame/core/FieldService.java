@@ -78,6 +78,19 @@ public class FieldService {
     }
 
     /**
+     * 一か所目の選択を保存するためのクラス
+     */
+    private class FirstBlock {
+        private long selectTimeMillis;
+        private Block firstBlock;
+
+        private FirstBlock(Block block) {
+            this.firstBlock = block;
+            this.selectTimeMillis = System.currentTimeMillis();
+        }
+    }
+
+    /**
      * 変化が上書きされるのを防止するため別スレッドで実行する
      */
     private class BlockChangeSender extends Thread {
