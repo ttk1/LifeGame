@@ -2,10 +2,14 @@ package net.ttk1.lifegame.core;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import net.ttk1.lifegame.LifeGame;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +20,15 @@ public class FieldService {
     private Map<String, Field> fields = new HashMap<>();
     private Map<String, FirstBlock> firstBlocks = new HashMap<>();
     private Server server;
+    private LifeGame plugin;
 
     @Inject
     private void setServer(Server server) {
         this.server = server;
+    }
+    @Inject
+    private void setPlugin(JavaPlugin plugin) {
+        this.plugin = (LifeGame) plugin;
     }
 
     public Field getField(Player player) {
@@ -48,7 +57,7 @@ public class FieldService {
             FirstBlock firstBlock = new FirstBlock(block);
             firstBlocks.put(playerUuid, firstBlock);
             BlockChangeSender blockChangeSender = new BlockChangeSender(player, block);
-            blockChangeSender.start();
+            blockChangeSender.runTask(plugin);
         }
     }
 
@@ -93,7 +102,7 @@ public class FieldService {
     /**
      * 変化が上書きされるのを防止するため別スレッドで実行する
      */
-    private class BlockChangeSender extends Thread {
+    private class BlockChangeSender extends BukkitRunnable {
         private Player player;
         private Block block;
 
@@ -104,11 +113,6 @@ public class FieldService {
 
         @Override
         public void run() {
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             player.sendBlockChange(block.getLocation(), Material.DIAMOND_BLOCK, (byte) 0x00);
         }
 
