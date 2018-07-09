@@ -21,13 +21,8 @@ import static java.lang.Math.abs;
 public class FieldService {
     private Map<String, Field> fields = new HashMap<>();
     private Map<String, FirstBlock> firstBlocks = new HashMap<>();
-    private Server server;
     private LifeGame plugin;
 
-    @Inject
-    private void setServer(Server server) {
-        this.server = server;
-    }
     @Inject
     private void setPlugin(JavaPlugin plugin) {
         this.plugin = (LifeGame) plugin;
@@ -67,9 +62,9 @@ public class FieldService {
         }
     }
 
-    public boolean isFirstBlockSelected(String playerUuid) {
+    private boolean isFirstBlockSelected(String playerUuid) {
         FirstBlock firstBlock = firstBlocks.get(playerUuid);
-        if (firstBlock != null || System.currentTimeMillis() - firstBlock.selectTimeMillis < 1000 * 60) {
+        if (firstBlock != null && System.currentTimeMillis() - firstBlock.selectTimeMillis < 1000 * 60) {
             return true;
         } else {
             firstBlocks.remove(playerUuid);

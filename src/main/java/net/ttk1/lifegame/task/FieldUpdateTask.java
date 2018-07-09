@@ -32,6 +32,11 @@ public class FieldUpdateTask extends BukkitRunnable {
         fields.remove(playerUuid);
     }
 
+    public FieldUpdateTask(Field field, LifeGame plugin) {
+        this.field = field;
+        this.plugin = plugin;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -44,15 +49,10 @@ public class FieldUpdateTask extends BukkitRunnable {
         return delay;
     }
 
-    public FieldUpdateTask(Field field, LifeGame plugin) {
-        this.field = field;
-        this.plugin = plugin;
-    }
-
     public void start() {
         try {
             status = 1;
-            runTaskLater(plugin, delay);
+            runTaskTimer(plugin, delay, delay);
         } catch (Exception e) {
             // do nothing
         }
@@ -71,17 +71,13 @@ public class FieldUpdateTask extends BukkitRunnable {
         switch (command) {
             case 0:
                 field.update();
-                break;
+                return;
             case 1:
-                command = 0;
-                status = 0;
+                return;
             case 2:
                 command = 0;
                 field.reset();
-                break;
-            default:
                 return;
         }
-        runTaskLater(plugin, delay);
     }
 }
