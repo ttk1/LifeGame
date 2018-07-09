@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import net.ttk1.lifegame.LifeGame;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
@@ -13,7 +14,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+
+import static java.lang.Math.abs;
 
 @Singleton
 public class FieldService {
@@ -31,30 +33,27 @@ public class FieldService {
         this.plugin = (LifeGame) plugin;
     }
 
-    public Field getField(Player player) {
-        return getField(player.getUniqueId().toString());
-    }
-
     public Field getField(String playerUuid) {
         return fields.get(playerUuid);
     }
 
     public void selectBlock(Player player, Block block) {
-        String playerUuid = player.getUniqueId().toString();
 
-        if (fields.containsKey(playerUuid) && fields.get(playerUuid) != null) {
-            // TODO: この辺を改善する
-            // クリックした位置がフィールドの範囲内であれば、セルの生死を反転させる
-            Field field = fields.get(playerUuid);
+
+        String playerUuid = player.getUniqueId().toString();
+        Field field = fields.get(playerUuid);
+
+        if (field != null) {
             if (field.isFieldBlock(block)) {
+                // クリックした位置がフィールドの範囲内であれば、セルの生死を反転させる
                 field.flip(block);
             } else {
                 player.sendMessage("You've already have LifeGame Field!");
             }
         } else if (isFirstBlockSelected(playerUuid)) {
             Block firstBlock = firstBlocks.get(playerUuid).firstBlock;
-            if (firstBlock.getWorld().getName().equals(block.getWorld().getName())) {
-                Field field = new Field(playerUuid, firstBlock, block);
+            if (validateField(firstBlock, block)) {
+                field = new Field(playerUuid, firstBlock, block, plugin);
                 fields.put(playerUuid, field);
             } else {
                 player.sendMessage("World is different!");
@@ -68,22 +67,28 @@ public class FieldService {
         }
     }
 
-    public boolean isFirstBlockSelected(Player player) {
-        return isFirstBlockSelected(player.getUniqueId().toString());
-    }
-
     public boolean isFirstBlockSelected(String playerUuid) {
-        if (firstBlocks.containsKey(playerUuid)) {
-            FirstBlock firstBlock = firstBlocks.get(playerUuid);
-            if (firstBlock != null || System.currentTimeMillis() - firstBlock.selectTimeMillis < 1000 * 60) {
-                return true;
-            } else {
-                firstBlocks.remove(playerUuid);
-                return false;
-            }
+        FirstBlock firstBlock = firstBlocks.get(playerUuid);
+        if (firstBlock != null || System.currentTimeMillis() - firstBlock.selectTimeMillis < 1000 * 60) {
+            return true;
         } else {
+            firstBlocks.remove(playerUuid);
             return false;
         }
+    }
+
+    private boolean validateField(Block firstBlock, Block secondBlock) {
+        if (!firstBlock.getWorld().equals(secondBlock.getWorld())) {
+            return false;
+        } else {
+            return getVolume(firstBlock.getLocation(), secondBlock.getLocation()) <= Field.MAX_VOLUME;
+        }
+    }
+
+    private int getVolume(Location location1, Location location2) {
+        return abs(location1.getBlockX() - location2.getBlockX()) +
+                abs(location1.getBlockY() - location2.getBlockY()) +
+                abs(location1.getBlockZ() - location2.getBlockZ());
     }
 
     public void deleteField(Player player) {
@@ -107,7 +112,7 @@ public class FieldService {
     }
 
     /**
-     * 変化が上書きされるのを防止するため別スレッドで実行する
+     * 変化が上書きされるのを防止するため別スレッドで実行するためのクラス
      */
     private class BlockChangeSender extends BukkitRunnable {
         private Player player;
