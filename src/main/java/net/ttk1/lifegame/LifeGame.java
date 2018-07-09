@@ -3,8 +3,8 @@ package net.ttk1.lifegame;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
-import net.ttk1.lifegame.core.Field;
-import net.ttk1.lifegame.core.FieldService;
+import net.ttk1.lifegame.field.Field;
+import net.ttk1.lifegame.field.FieldService;
 import net.ttk1.lifegame.eventlistener.FieldSelector;
 import net.ttk1.lifegame.task.FieldUpdateTask;
 import org.bukkit.command.Command;
@@ -112,7 +112,6 @@ public class LifeGame extends JavaPlugin {
                             task = FieldUpdateTask.getTask(playerUuid);
                             if (task != null) {
                                 task.stop();
-                                FieldUpdateTask.deleteTask(playerUuid);
                             }
                             break;
                         case "reset":

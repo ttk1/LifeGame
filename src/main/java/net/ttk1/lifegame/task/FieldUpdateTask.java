@@ -1,7 +1,7 @@
 package net.ttk1.lifegame.task;
 
 import net.ttk1.lifegame.LifeGame;
-import net.ttk1.lifegame.core.Field;
+import net.ttk1.lifegame.field.Field;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -11,7 +11,7 @@ public class FieldUpdateTask extends BukkitRunnable {
     private static Map<String, FieldUpdateTask> fields = new HashMap<>();
     private LifeGame plugin;
     private Field field;
-    private int delay = 20;
+    private int delay = 5;
 
     // 0 -> stopped
     // 1 -> running
@@ -29,6 +29,7 @@ public class FieldUpdateTask extends BukkitRunnable {
         fields.put(playerUuid, task);
     }
     public static void deleteTask(String playerUuid) {
+        fields.get(playerUuid).cancel();
         fields.remove(playerUuid);
     }
 
@@ -54,16 +55,16 @@ public class FieldUpdateTask extends BukkitRunnable {
             status = 1;
             runTaskTimer(plugin, delay, delay);
         } catch (Exception e) {
-            // do nothing
+            command = 0;
         }
     }
 
     public void stop() {
-        command = 1;
+        command = 2;
     }
 
     public void reset() {
-        command = 2;
+        command = 3;
     }
 
     @Override
@@ -73,9 +74,18 @@ public class FieldUpdateTask extends BukkitRunnable {
                 field.update();
                 return;
             case 1:
+                command = 0;
+                status = 1;
                 return;
             case 2:
-                command = 0;
+                status = 0;
+                return;
+            case 3:
+                if (status == 1) {
+                    command = 0;
+                } else {
+                    command = 2;
+                }
                 field.reset();
                 return;
         }
