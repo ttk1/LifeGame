@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.google.inject.name.Names;
+import org.bukkit.Server;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,6 +25,7 @@ public class PluginModule extends AbstractModule {
     @Override
     protected void configure(){
         bind(JavaPlugin.class).toInstance(plugin);
+        bind(Server.class).toInstance(plugin.getServer());
         bind(Logger.class).annotatedWith(Names.named("lifegame")).toInstance(plugin.getLogger());
         bind(Configuration.class).toInstance(plugin.getConfig());
     }
