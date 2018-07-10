@@ -50,7 +50,7 @@ public class FieldService {
                 field = new Field(playerUuid, firstBlock, block, plugin);
                 fields.put(playerUuid, field);
             } else {
-                player.sendMessage("World is different!");
+                player.sendMessage("Cannot create Field!");
             }
             firstBlocks.remove(playerUuid);
         } else {
@@ -89,6 +89,7 @@ public class FieldService {
         deleteField(player.getUniqueId().toString());
     }
     public void deleteField(String playerUuid) {
+        firstBlocks.remove(playerUuid);
         fields.remove(playerUuid);
     }
 
