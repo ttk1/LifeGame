@@ -1,47 +1,43 @@
 package net.ttk1.lifegame.task;
 
 import net.ttk1.lifegame.LifeGame;
-import net.ttk1.lifegame.core.Field;
+import net.ttk1.lifegame.field.Field;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class FieldUpdateTask extends BukkitRunnable {
-    private static Map<String, FieldUpdateTask> fields = new HashMap<>();
+    private static Map<String, FieldUpdateTask> tasks = new HashMap<>();
+
+    private static final int STATUS_STOPPED = 0;
+    private static final int STATUS_RUNNING = 1;
+
+    private static final int COMMAND_KEEP_RUNNING = 0;
+    private static final int COMMAND_START_RUNNING = 1;
+    private static final int COMMAND_STOP_RUNNING = 2;
+    private static final int COMMAND_RESET_FIELD = 3;
+    private static final int DELAY = 1;
+
+
     private LifeGame plugin;
     private Field field;
-    private int delay = 20;
 
-    // 0 -> stopped
-    // 1 -> running
-    private int status = 0;
-
-    // 0 -> do nothing
-    // 1 -> stop
-    // 2 -> reset
-    private int command = 0;
+    private int status = STATUS_STOPPED;
+    private int command = COMMAND_KEEP_RUNNING;
 
     public static FieldUpdateTask getTask(String playerUuid) {
-        return fields.get(playerUuid);
+        return tasks.get(playerUuid);
     }
     public static void addTask(String playerUuid, FieldUpdateTask task) {
-        fields.put(playerUuid, task);
+        tasks.put(playerUuid, task);
     }
     public static void deleteTask(String playerUuid) {
-        fields.remove(playerUuid);
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-    public int setDelay() {
-        return delay;
+        FieldUpdateTask task = tasks.get(playerUuid);
+        if (task != null) {
+            task.cancel();
+            tasks.remove(playerUuid);
+        }
     }
 
     public FieldUpdateTask(Field field, LifeGame plugin) {
@@ -49,39 +45,48 @@ public class FieldUpdateTask extends BukkitRunnable {
         this.plugin = plugin;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
     public void start() {
         try {
-            status = 1;
-            runTaskLater(plugin, delay);
+            status = STATUS_RUNNING;
+            runTaskTimer(plugin, DELAY, DELAY);
         } catch (Exception e) {
-            // do nothing
+            command = COMMAND_START_RUNNING;
         }
     }
 
     public void stop() {
-        command = 1;
+        command = COMMAND_STOP_RUNNING;
     }
 
     public void reset() {
-        command = 2;
+        command = COMMAND_RESET_FIELD;
     }
 
     @Override
     public void run() {
         switch (command) {
-            case 0:
+            case COMMAND_KEEP_RUNNING:
                 field.update();
                 break;
-            case 1:
-                command = 0;
-                status = 0;
-            case 2:
-                command = 0;
+            case COMMAND_START_RUNNING:
+                command = COMMAND_KEEP_RUNNING;
+                status = STATUS_RUNNING;
+                break;
+            case COMMAND_STOP_RUNNING:
+                status = STATUS_STOPPED;
+                break;
+            case COMMAND_RESET_FIELD:
+                if (status == STATUS_RUNNING) {
+                    command = COMMAND_KEEP_RUNNING;
+                } else {
+                    command = COMMAND_STOP_RUNNING;
+                }
                 field.reset();
                 break;
-            default:
-                return;
         }
-        runTaskLater(plugin, delay);
     }
 }
